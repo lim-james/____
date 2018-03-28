@@ -1,6 +1,25 @@
 /*:
- # KeyGrids
+ ![KeyGrids](banner.jpeg)
+ ### An interactive grid for people to play around with music
+ ---
+ # Welcome
+ ### I have prepared a quick example on how the program works. Hit "Start Demo" to see it go.
  
+ ---
+ 
+ # Your turn
+ ### First, hit the delete button to clear the grid.
+ ### From here, feel free to experiment with everything!
+ 
+ ---
+ 
+ # About
+ ### Regarding why this was built, it is because I wanted to try a new way of creating music. A
+ 
+ 
+ ---
+ 
+ WWDC 2018 Project by: James Lim
 */
 
 import UIKit
@@ -181,6 +200,7 @@ class Bot: UIView {
             position = startPosition
         }
     }
+    
     var position: CGPoint! {
         didSet {
             UIView.animate(withDuration: speed) {
@@ -188,6 +208,7 @@ class Bot: UIView {
             }
         }
     }
+    
     var direction: Direction = .none
     var speed: Double = 0
     var head = UIView()
@@ -251,7 +272,7 @@ class Bot: UIView {
     }
 }
 
-class ViewController : UIViewController {
+class ViewController: UIViewController {
     
     var firstLaunch = true
     
@@ -385,7 +406,13 @@ class ViewController : UIViewController {
             grid[0][0].direction = .right
             
             firstLaunch = false
+            
+            demo()
         }
+    }
+    
+    func demo() {
+        
     }
     
     func setupGridContainer() {
