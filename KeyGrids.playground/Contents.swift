@@ -1,5 +1,8 @@
-//: A UIKit based Playground for presenting user interface
-  
+/*:
+ # KeyGrids
+ 
+*/
+
 import UIKit
 import PlaygroundSupport
 import AudioToolbox
@@ -412,8 +415,9 @@ class ViewController : UIViewController {
     }
     
     func setupStartButton() {
-        startButton.setTitle("START", for: .normal)
-        startButton.setTitleColor(.white, for: .normal)
+        startButton.setImage(UIImage(named: "play"), for: .normal)
+        startButton.imageView?.contentMode = .scaleAspectFit
+        startButton.imageEdgeInsets = UIEdgeInsetsMake(8, 8, 8, 8)
         startButton.addTarget(self, action: #selector(self.startAction), for: .touchUpInside)
         startButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(startButton)
@@ -471,8 +475,9 @@ class ViewController : UIViewController {
     }
     
     func setupClearButton() {
-        clearButton.setTitle("CLEAR", for: .normal)
-        clearButton.setTitleColor(.white, for: .normal)
+        clearButton.setImage(UIImage(named: "delete"), for: .normal)
+        clearButton.imageView?.contentMode = .scaleAspectFit
+        clearButton.imageEdgeInsets = UIEdgeInsetsMake(8, 8, 8, 8)
         clearButton.addTarget(self, action: #selector(self.clearAction), for: .touchUpInside)
         clearButton.backgroundColor = .background
         clearButton.translatesAutoresizingMaskIntoConstraints = false
@@ -567,13 +572,13 @@ class ViewController : UIViewController {
     }
     
     @objc func startAction() {
-        if startButton.titleLabel?.text == "START" {
+        if startButton.image(for: .normal) == UIImage(named: "play") {
             selectedTile = nil
             timer = Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: #selector(self.refresh), userInfo: nil, repeats: true)
-            startButton.setTitle("RESET", for: .normal)
+            startButton.setImage(UIImage(named: "rewind"), for: .normal)
         } else {
             timer.invalidate()
-            startButton.setTitle("START", for: .normal)
+            startButton.setImage(UIImage(named: "play"), for: .normal)
             resetBots()
         }
     }
