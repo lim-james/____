@@ -337,10 +337,6 @@ class ViewController : UIViewController {
     
     let startButton = UIButton()
     
-    // help button variables
-    
-    let helpButton = UIButton()
-    
     // menu variables
     
     var directions: [Direction] = [.none, .up, .down, .left, .right]
@@ -377,7 +373,6 @@ class ViewController : UIViewController {
             setupActionCollectionView()
             generateGrid()
             setupStartButton()
-            setupHelpButton()
             setupSliderView()
             setupSliderLabel()
             setupDeleteLabel()
@@ -428,20 +423,6 @@ class ViewController : UIViewController {
         let bottom = NSLayoutConstraint(item: startButton, attribute: .bottom, relatedBy: .equal, toItem: view, attribute: .bottom, multiplier: 1, constant: 0)
         let height = NSLayoutConstraint(item: startButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 2, constant: tileLength)
         view.addConstraints([left, right, bottom, height])
-    }
-    
-    func setupHelpButton() {
-        helpButton.setTitle("?", for: .normal)
-        helpButton.setTitleColor(.white, for: .normal)
-        helpButton.addTarget(self, action: #selector(self.helpAction), for: .touchUpInside)
-        helpButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(helpButton)
-        
-        let right = NSLayoutConstraint(item: helpButton, attribute: .right, relatedBy: .equal, toItem: view, attribute: .right, multiplier: 1, constant: 0)
-        let bottom = NSLayoutConstraint(item: helpButton, attribute: .bottom, relatedBy: .equal, toItem: view, attribute: .bottom, multiplier: 1, constant: 0)
-        let width = NSLayoutConstraint(item: helpButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 2, constant: tileLength)
-        let height = NSLayoutConstraint(item: helpButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 2, constant: tileLength)
-        view.addConstraints([right, bottom, width, height])
     }
     
     func setupSliderView() {
@@ -595,10 +576,6 @@ class ViewController : UIViewController {
             startButton.setTitle("START", for: .normal)
             resetBots()
         }
-    }
-    
-    @objc func helpAction() {
-        
     }
     
     @objc func clearAction() {
