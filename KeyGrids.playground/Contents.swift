@@ -1,15 +1,16 @@
 /*:
  ![KeyGrids](banner.jpeg)
- ### An interactive grid for people to play around with music
+ # An interactive grid for people to play around with music
  ---
- # Welcome
- ### I have prepared a quick example on how the program works. Hit "Start Demo" to see it go.
+ ## Welcome
+ ### I have prepared a quick example on how the program works. Hit start to see it go.
  
  ---
  
- # Your turn
+ ## Your turn
  ### First, hit the delete button to clear the grid.
  ### From here, feel free to experiment with everything!
+ ### Click on grids to 
  
  ---
  
@@ -185,6 +186,19 @@ class Tile: UIView {
             self.transform = CGAffineTransform(scaleX: 1, y: 1)
         }, completion: nil)
     }
+    
+    func fadeIn() {
+        alpha = 0
+        UIView.animate(withDuration: 0.5, delay: Double(position.x + position.y) / 20, options: .curveEaseIn, animations: {
+            self.alpha = 1
+        }, completion: nil)
+    }
+    
+    func fadeOut(_ completion: @escaping (Bool) -> Void) {
+        UIView.animate(withDuration: 0.5, delay: Double(position.x + position.y) / 20, options: .curveEaseIn, animations: {
+            self.alpha = 0
+        }, completion: completion)
+    }
 }
 
 class Bot: UIView {
@@ -262,6 +276,12 @@ class Bot: UIView {
         }
         
         tile.note.play()
+    }
+    
+    func fadeOut(_ completion: @escaping (Bool) -> Void) {
+        UIView.animate(withDuration: 0.5, delay: Double(position.x + position.y) / 20, options: .curveEaseIn, animations: {
+            self.alpha = 0
+        }, completion: completion)
     }
 }
 
@@ -424,15 +444,7 @@ class ViewController: UIViewController {
             grid[0][0].direction = .right
             
             firstLaunch = false
-            
-            demo()
         }
-    }
-    
-    func demo() {
-        let touchLocation = CGPoint(x: 100, y: 10)
-        gridContainer.hitTest(touchLocation, with: nil)
-//        gridContainer.overlapHitTest(touchLocation, withEvent: nil)
     }
     
     func setupGridContainer() {
@@ -576,6 +588,7 @@ class ViewController: UIViewController {
                 tile.create(with: tileLength, at: CGPoint(x: x, y: y))
                 gridContainer.addSubview(tile)
                 row.append(tile)
+                tile.fadeIn()
             }
             grid.append(row)
         }
@@ -584,8 +597,13 @@ class ViewController: UIViewController {
     func clearGrid() {
         for row in grid {
             for tile in row {
-                tile.direction = .none
-                tile.note = Note()
+                tile.fadeOut({ _ in
+                    tile.removeFromSuperview()
+                    if tile == self.grid.last?.last {
+                        self.grid.removeAll()
+                        self.generateGrid()
+                    }
+                })
             }
         }
     }
@@ -598,8 +616,10 @@ class ViewController: UIViewController {
     }
     
     func delete(_ bot: Bot) {
-        bot.removeFromSuperview()
-        bots.remove(at: bots.index(of: bot)!)
+        bot.fadeOut { _ in
+            bot.removeFromSuperview()
+            self.bots.remove(at: self.bots.index(of: bot)!)
+        }
     }
     
     func resetBots() {
@@ -689,7 +709,6 @@ extension ViewController {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
         let location = touches.first?.location(in: gridContainer)
-        print("touched at\(location)")
         for bot in bots {
             if (location?.isIn(bot.frame))! {
                 selectedBot = bot
