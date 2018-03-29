@@ -13,12 +13,6 @@
  
  ---
  
- # About
- ### Regarding why this was built, it is because I wanted to try a new way of creating music. A
- 
- 
- ---
- 
  WWDC 2018 Project by: James Lim
 */
 
@@ -104,7 +98,6 @@ class Tile: UIView {
     var note: Note! {
         didSet {
             let dir = direction; direction = dir
-            if note.name.trimmingCharacters(in: .whitespaces).isEmpty { direction = .none }
             noteLabel.text = note.name
             UIView.animate(withDuration: 0.25) {
                 self.noteLabel.backgroundColor = self.note.color
@@ -272,6 +265,31 @@ class Bot: UIView {
     }
 }
 
+extension UIView {
+    func overlapHitTest(_ point: CGPoint, withEvent event: UIEvent?) -> UIView? {
+        if !self.isUserInteractionEnabled || self.isHidden || self.alpha == 0 {
+            return nil
+        }
+        
+        var hitView: UIView? = self
+        if !self.point(inside: point, with: event) {
+            if self.clipsToBounds {
+                return nil
+            } else {
+                hitView = nil
+            }
+        }
+        
+        for subview in self.subviews.reversed() {
+            let insideSubview = self.convert(point, to: subview)
+            if let sview = subview.overlapHitTest(insideSubview, withEvent: event) {
+                return sview
+            }
+        }
+        return hitView
+    }
+}
+
 class ViewController: UIViewController {
     
     var firstLaunch = true
@@ -412,7 +430,9 @@ class ViewController: UIViewController {
     }
     
     func demo() {
-        
+        let touchLocation = CGPoint(x: 100, y: 10)
+        gridContainer.hitTest(touchLocation, with: nil)
+//        gridContainer.overlapHitTest(touchLocation, withEvent: nil)
     }
     
     func setupGridContainer() {
@@ -669,6 +689,7 @@ extension ViewController {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
         let location = touches.first?.location(in: gridContainer)
+        print("touched at\(location)")
         for bot in bots {
             if (location?.isIn(bot.frame))! {
                 selectedBot = bot
@@ -737,18 +758,26 @@ extension ViewController {
             }
             selectedBot = nil
         } else if let tile = hoveredTile {
-            let new = getNewPosition(of: tile)
-            if tile.position == new {
-                tile.position = new
-                toggleMenu(from: tile)
-            } else {
+            if location.isIn(clearButton.frame) {
                 let old = tile.position
-                let switchedTile = grid[Int(new.x)][Int(new.y)]
-                switchedTile.position = old
-                tile.position = new
-                grid[Int(old.x)][Int(old.y)] = switchedTile
-                grid[Int(new.x)][Int(new.y)] = tile
+                tile.position = old
+                tile.direction = .none
+                tile.note = Note()
                 hoveredTile = nil
+            } else {
+                let new = getNewPosition(of: tile)
+                if tile.position == new {
+                    tile.position = new
+                    toggleMenu(from: tile)
+                } else {
+                    let old = tile.position
+                    let switchedTile = grid[Int(new.x)][Int(new.y)]
+                    switchedTile.position = old
+                    tile.position = new
+                    grid[Int(old.x)][Int(old.y)] = switchedTile
+                    grid[Int(new.x)][Int(new.y)] = tile
+                    hoveredTile = nil
+                }
             }
         } else {
             dismissAction()
