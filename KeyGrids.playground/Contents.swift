@@ -8,9 +8,6 @@
  ---
  
  ## Your turn
- ### First, hit the delete button to clear the grid.
- ### From here, feel free to experiment with everything!
- ### Click on grids to 
  
  ---
  
@@ -45,6 +42,21 @@ enum Direction {
     case left
     case right
     case none
+    
+    var rawValue: String {
+        switch self {
+        case .up:
+            return ".up"
+        case .down:
+            return ".down"
+        case .left:
+            return ".left"
+        case .right:
+            return ".right"
+        case .none:
+            return ".none"
+        }
+    }
 }
 
 class Note {
@@ -608,6 +620,17 @@ class ViewController: UIViewController {
         }
     }
     
+    func saveGrid() {
+        var end = [[Any]]()
+        grid.forEach { (row) in
+            row.forEach({ (tile) in
+                end.append([tile.note.index, tile.direction.rawValue])
+            })
+        }
+        print("\nGrid Format:")
+        print(end)
+    }
+    
     func createBot(at position: CGPoint) {
         let bot = Bot()
         bot.create(with: tileLength, at: position, duration: timeInterval)
@@ -643,6 +666,7 @@ class ViewController: UIViewController {
             selectedTile = nil
             timer = Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: #selector(self.refresh), userInfo: nil, repeats: true)
             startButton.setImage(UIImage(named: "rewind"), for: .normal)
+            saveGrid()
         } else {
             timer.invalidate()
             startButton.setImage(UIImage(named: "play"), for: .normal)
@@ -988,7 +1012,7 @@ extension ViewController {
 }
 
 var notes: [Note] = [Note()]
-func readFile() {
+func readNotesFile() {
     let filePath = Bundle.main.path(forResource:"notes", ofType: "txt")
     let contentData = FileManager.default.contents(atPath: filePath!)
     
@@ -1005,7 +1029,7 @@ func readFile() {
         }
     }
 }
-readFile()
+readNotesFile()
 
 PlaygroundPage.current.needsIndefiniteExecution = true
 PlaygroundPage.current.liveView = ViewController()
