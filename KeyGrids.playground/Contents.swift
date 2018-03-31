@@ -80,13 +80,13 @@ class Note {
     var track: MusicTrack? = nil
     var musicPlayer:MusicPlayer? = nil
     
-    func play() {
+    func play(with duration: Float32) {
         if name != "" {
             DispatchQueue.main.async {
                 NewMusicSequence(&self.sequence)
                 MusicSequenceNewTrack(self.sequence!, &self.track)
                 
-                var note = MIDINoteMessage(channel: 0, note: self.index, velocity: 127, releaseVelocity: 0, duration: 0.5)
+                var note = MIDINoteMessage(channel: 0, note: self.index, velocity: 127, releaseVelocity: 64, duration: duration)
                 MusicTrackNewMIDINoteEvent(self.track!, 0, &note)
                 
                 var musicPlayer: MusicPlayer? = nil
@@ -287,7 +287,7 @@ class Bot: UIView {
             break
         }
         
-        tile.note.play()
+        tile.note.play(with: Float32(speed))
     }
     
     func fadeOut(_ completion: @escaping (Bool) -> Void) {
@@ -958,7 +958,7 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if let tile = selectedTile {
             if collectionView == menuCollectionView {
-                notes[indexPath.row].play()
+                notes[indexPath.row].play(with: Float32(timeInterval))
                 tile.note = notes[indexPath.row]
             } else {
                 if indexPath.row < directions.count {
