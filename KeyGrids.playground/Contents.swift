@@ -36,6 +36,11 @@ func * (point: CGPoint, length: CGFloat) -> CGPoint {
     return CGPoint(x: point.x * length, y: point.y * length)
 }
 
+struct Properties {
+    var direction: Direction
+    var note: Note
+}
+
 enum Direction {
     case up
     case down
@@ -373,7 +378,90 @@ class ViewController: UIViewController {
     let gridContainer = UIView()
     let gridSize: Int = 8
     var grid: [[Tile]] = []
-    
+    var saved: [[Properties]] =
+        [
+            [
+                Properties(direction: .right, note: notes[0]),
+                Properties(direction: .none, note: notes[62]),
+                Properties(direction: .none, note: notes[64]),
+                Properties(direction: .none, note: notes[67]),
+                Properties(direction: .none, note: notes[69]),
+                Properties(direction: .none, note: notes[69]),
+                Properties(direction: .none, note: notes[66]),
+                Properties(direction: .up, note: notes[66])
+            ],
+            [
+                Properties(direction: .none, note: notes[66]),
+                Properties(direction: .down, note: notes[0]),
+                Properties(direction: .right, note: notes[0]),
+                Properties(direction: .down, note: notes[64]),
+                Properties(direction: .right, note: notes[66]),
+                Properties(direction: .down, note: notes[66]),
+                Properties(direction: .right, note: notes[69]),
+                Properties(direction: .none, note: notes[66])
+            ],
+            [
+                Properties(direction: .none, note: notes[66]),
+                Properties(direction: .none, note: notes[66]),
+                Properties(direction: .none, note: notes[0]),
+                Properties(direction: .none, note: notes[64]),
+                Properties(direction: .none, note: notes[64]),
+                Properties(direction: .none, note: notes[0]),
+                Properties(direction: .none, note: notes[62]),
+                Properties(direction: .none, note: notes[66])
+            ],
+            [
+                Properties(direction: .none, note: notes[66]),
+                Properties(direction: .none, note: notes[64]),
+                Properties(direction: .none, note: notes[67]),
+                Properties(direction: .none, note: notes[66]),
+                Properties(direction: .none, note: notes[0]),
+                Properties(direction: .none, note: notes[66]),
+                Properties(direction: .none, note: notes[64]),
+                Properties(direction: .none, note: notes[67])
+            ],
+            [
+                Properties(direction: .none, note: notes[0]),
+                Properties(direction: .none, note: notes[62]),
+                Properties(direction: .none, note: notes[67]),
+                Properties(direction: .none, note: notes[66]),
+                Properties(direction: .none, note: notes[69]),
+                Properties(direction: .none, note: notes[66]),
+                Properties(direction: .none, note: notes[66]),
+                Properties(direction: .none, note: notes[67])
+            ],
+            [
+                Properties(direction: .none, note: notes[66]),
+                Properties(direction: .none, note: notes[69]),
+                Properties(direction: .none, note: notes[67]),
+                Properties(direction: .none, note: notes[66]),
+                Properties(direction: .none, note: notes[0]),
+                Properties(direction: .none, note: notes[66]),
+                Properties(direction: .none, note: notes[0]),
+                Properties(direction: .none, note: notes[67])
+            ],
+            [
+                Properties(direction: .none, note: notes[66]),
+                Properties(direction: .none, note: notes[66]),
+                Properties(direction: .none, note: notes[67]),
+                Properties(direction: .none, note: notes[66]),
+                Properties(direction: .none, note: notes[66]),
+                Properties(direction: .none, note: notes[0]),
+                Properties(direction: .none, note: notes[0]),
+                Properties(direction: .none, note: notes[67])
+            ],
+            [
+                Properties(direction: .down, note: notes[66]),
+                Properties(direction: .left, note: notes[0]),
+                Properties(direction: .down, note: notes[67]),
+                Properties(direction: .left, note: notes[66]),
+                Properties(direction: .down, note: notes[66]),
+                Properties(direction: .left, note: notes[66]),
+                Properties(direction: .down, note: notes[0]),
+                Properties(direction: .left, note: notes[67])
+            ]
+        ]
+
     // bot variables
     
     var bots: [Bot] = []
@@ -456,6 +544,8 @@ class ViewController: UIViewController {
             grid[0][0].direction = .right
             
             firstLaunch = false
+            
+            loadGrid()
         }
     }
     
@@ -621,14 +711,31 @@ class ViewController: UIViewController {
     }
     
     func saveGrid() {
-        var end = [[Any]]()
+        print("\nGird Format: [")
         grid.forEach { (row) in
+            var savedRow: [Properties] = []
+            print("\t[")
             row.forEach({ (tile) in
-                end.append([tile.note.index, tile.direction.rawValue])
+                let noteIndex = notes.index(where: { (note) -> Bool in
+                    return note.index == tile.note.index
+                })
+                savedRow.append(Properties(direction: tile.direction, note: tile.note))
+                print("\t\tProperties(direction: \(tile.direction.rawValue), note: notes[\(noteIndex!)]),")
             })
+            saved.append(savedRow)
+            print("\t],")
         }
-        print("\nGrid Format:")
-        print(end)
+        print("]")
+    }
+    
+    func loadGrid() {
+        for r in 0 ..< grid.count {
+            let row = grid[r]
+            for t in 0 ..< row.count {
+                row[t].direction = saved[r][t].direction
+                row[t].note = saved[r][t].note
+            }
+        }
     }
     
     func createBot(at position: CGPoint) {
@@ -666,7 +773,7 @@ class ViewController: UIViewController {
             selectedTile = nil
             timer = Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: #selector(self.refresh), userInfo: nil, repeats: true)
             startButton.setImage(UIImage(named: "rewind"), for: .normal)
-            saveGrid()
+//            saveGrid()
         } else {
             timer.invalidate()
             startButton.setImage(UIImage(named: "play"), for: .normal)
