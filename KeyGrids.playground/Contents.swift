@@ -3,15 +3,13 @@
  # An interactive grid for people to play around with music
  ---
  ## Welcome
- ### I have prepared a quick example on how the program works. Hit start to see it go.
- 
+ ### I have prepared a quick example on how the program works. Something Holiday themed, I hope you like it. Hit the play button to start the music.
  ---
- 
  ## Your turn
- 
+ ### You can start by clearing the grid by pressing the delete button.
+ ### Create your own music by selecting tiles to change it's propeties. Apart from tapping on tiles you can also drag them around to change their positions.
  ---
- 
- WWDC 2018 Project by: James Lim
+ WWDC 2018 Project by: [James Lim](http://jameslim.com)
 */
 
 import UIKit
@@ -87,17 +85,18 @@ class Note {
     
     func play(with duration: Float32) {
         if name != "" {
-            DispatchQueue.main.async {
-                NewMusicSequence(&self.sequence)
-                MusicSequenceNewTrack(self.sequence!, &self.track)
-                
-                var note = MIDINoteMessage(channel: 0, note: self.index, velocity: 127, releaseVelocity: 64, duration: duration)
-                MusicTrackNewMIDINoteEvent(self.track!, 0, &note)
-                
-                var musicPlayer: MusicPlayer? = nil
-                NewMusicPlayer(&musicPlayer)
-                MusicPlayerSetSequence(musicPlayer!, self.sequence!)
-                MusicPlayerStart(musicPlayer!)
+            NewMusicSequence(&sequence)
+            MusicSequenceNewTrack(sequence!, &track)
+            
+            var note = MIDINoteMessage(channel: 0, note: index, velocity: 127, releaseVelocity: 64, duration: duration)
+            MusicTrackNewMIDINoteEvent(track!, 0, &note)
+            
+            var musicPlayer: MusicPlayer? = nil
+            NewMusicPlayer(&musicPlayer)
+            MusicPlayerSetSequence(musicPlayer!, sequence!)
+            MusicPlayerStart(musicPlayer!)
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(duration)) {
+                MusicPlayerStop(musicPlayer!)
             }
         }
     }
@@ -711,6 +710,7 @@ class ViewController: UIViewController {
     }
     
     func saveGrid() {
+        saved.removeAll()
         print("\nGird Format: [")
         grid.forEach { (row) in
             var savedRow: [Properties] = []
@@ -773,7 +773,7 @@ class ViewController: UIViewController {
             selectedTile = nil
             timer = Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: #selector(self.refresh), userInfo: nil, repeats: true)
             startButton.setImage(UIImage(named: "rewind"), for: .normal)
-//            saveGrid()
+            saveGrid()
         } else {
             timer.invalidate()
             startButton.setImage(UIImage(named: "play"), for: .normal)
